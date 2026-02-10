@@ -69,13 +69,12 @@ config.default = {
 	--- Filetypes to ignore and not show tabs for
 	ignored = { "neo-tree" },
 
-	--- Highlight groups used by the plugin. `fg` and `bg` values can either be hex colors
-	--- or existing highlight group names
+	--- Highlight groups used by the plugin. Values are passed directly to `nvim_set_hl`.
 	highlights = {
-		["TabsFocused"] = { fg = "Normal", bg = "Normal", ctermfg = 7 },
-		["TabsUnfocused"] = { fg = "NormalFloat", bg = "NormalFloat", ctermfg = 8 },
-		["TabsSelected"] = { fg = "Type", bg = "NormalFloat", bold = true, italic = true, ctermfg = 7, ctermbg = 8 },
-		["TabsSeparator"] = { fg = "NonText", bg = "NormalFloat", ctermfg = 8 },
+		["TabsFocused"] = { ctermfg = 7 },
+		["TabsUnfocused"] = { ctermfg = 8 },
+		["TabsSelected"] = { bold = true, italic = true, ctermfg = 7, ctermbg = 8 },
+		["TabsSeparator"] = { ctermfg = 8 },
 	},
 }
 

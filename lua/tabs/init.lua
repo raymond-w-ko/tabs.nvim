@@ -132,29 +132,8 @@ end
 ---
 ---@return nil
 local function setup_highlights(highlights)
-	for name, value in pairs(highlights) do
-		local hl_opts = { bold = value.bold, italic = value.italic }
-
-		-- GUI foreground
-		if utils.is_hex_color(value.fg) then
-			hl_opts.fg = value.fg
-		else
-			hl_opts.fg = vim.api.nvim_get_hl(0, { name = value.fg }).fg
-		end
-
-		-- GUI background
-		if utils.is_hex_color(value.bg) then
-			hl_opts.bg = value.bg
-		else
-			hl_opts.bg = vim.api.nvim_get_hl(0, { name = value.bg }).bg
-		end
-
-		-- Explicit cterm colors (0-15 palette)
-		hl_opts.ctermfg = value.ctermfg
-		hl_opts.ctermbg = value.ctermbg
-
-		-- Set the highlight
-		vim.api.nvim_set_hl(0, name, hl_opts)
+	for name, opts in pairs(highlights) do
+		vim.api.nvim_set_hl(0, name, opts)
 	end
 end
 
@@ -189,12 +168,10 @@ local function visit_buffer(buffer)
 		local icon_name = devicons.get_icon_name_by_filetype(filetype) or ""
 		local icon_group = "DevIcon" .. icon_name:sub(1, 1):upper() .. icon_name:sub(2)
 
-		local source_fg = vim.api.nvim_get_hl(0, { name = icon_group })
-		local source_bg = vim.api.nvim_get_hl(0, { name = "Normal" })
+		local source = vim.api.nvim_get_hl(0, { name = icon_group })
 		vim.api.nvim_set_hl(0, "Tabs" .. icon_group, {
-			fg = source_fg.fg,
-			bg = source_bg.bg,
-			ctermfg = source_fg.ctermfg,
+			fg = source.fg,
+			ctermfg = source.ctermfg,
 		})
 
 		icon_color = "Tabs" .. icon_group
