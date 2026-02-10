@@ -135,23 +135,23 @@ local function setup_highlights(highlights)
 	for name, value in pairs(highlights) do
 		local hl_opts = { bold = value.bold, italic = value.italic }
 
-		-- Foreground
+		-- GUI foreground
 		if utils.is_hex_color(value.fg) then
 			hl_opts.fg = value.fg
 		else
-			local source = vim.api.nvim_get_hl(0, { name = value.fg })
-			hl_opts.fg = source.fg
-			hl_opts.ctermfg = source.ctermfg
+			hl_opts.fg = vim.api.nvim_get_hl(0, { name = value.fg }).fg
 		end
 
-		-- Background
+		-- GUI background
 		if utils.is_hex_color(value.bg) then
 			hl_opts.bg = value.bg
 		else
-			local source = vim.api.nvim_get_hl(0, { name = value.bg })
-			hl_opts.bg = source.bg
-			hl_opts.ctermbg = source.ctermbg
+			hl_opts.bg = vim.api.nvim_get_hl(0, { name = value.bg }).bg
 		end
+
+		-- Explicit cterm colors (0-15 palette)
+		hl_opts.ctermfg = value.ctermfg
+		hl_opts.ctermbg = value.ctermbg
 
 		-- Set the highlight
 		vim.api.nvim_set_hl(0, name, hl_opts)
@@ -195,7 +195,6 @@ local function visit_buffer(buffer)
 			fg = source_fg.fg,
 			bg = source_bg.bg,
 			ctermfg = source_fg.ctermfg,
-			ctermbg = source_bg.ctermbg,
 		})
 
 		icon_color = "Tabs" .. icon_group

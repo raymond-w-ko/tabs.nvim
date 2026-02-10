@@ -1,7 +1,7 @@
 local config = {}
 
 ---@alias HighlightName "TabsClose" | "TabsFocused" | "TabsUnfocused" | "TabsSeparator" | "TabsSelected" | "TabsSelectedClose"
----@alias Highlight { bg?: string, fg?: string, bold?: boolean, italic?: boolean }
+---@alias Highlight { bg?: string, fg?: string, bold?: boolean, italic?: boolean, ctermfg?: integer, ctermbg?: integer }
 ---@alias Offset { filetype: string, title: fun(): string }
 
 ---@class TabConfig
@@ -72,10 +72,10 @@ config.default = {
 	--- Highlight groups used by the plugin. `fg` and `bg` values can either be hex colors
 	--- or existing highlight group names
 	highlights = {
-		["TabsFocused"] = { fg = "Normal", bg = "Normal" },
-		["TabsUnfocused"] = { fg = "NormalFloat", bg = "NormalFloat" },
-		["TabsSelected"] = { fg = "Type", bg = "NormalFloat", bold = true, italic = true },
-		["TabsSeparator"] = { fg = "NonText", bg = "NormalFloat" },
+		["TabsFocused"] = { fg = "Normal", bg = "Normal", ctermfg = 7 },
+		["TabsUnfocused"] = { fg = "NormalFloat", bg = "NormalFloat", ctermfg = 8 },
+		["TabsSelected"] = { fg = "Type", bg = "NormalFloat", bold = true, italic = true, ctermfg = 7, ctermbg = 8 },
+		["TabsSeparator"] = { fg = "NonText", bg = "NormalFloat", ctermfg = 8 },
 	},
 }
 
