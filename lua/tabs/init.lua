@@ -133,22 +133,28 @@ end
 ---@return nil
 local function setup_highlights(highlights)
 	for name, value in pairs(highlights) do
+		local hl_opts = { bold = value.bold, italic = value.italic }
+
 		-- Foreground
-		local fg = value.fg
-		if not utils.is_hex_color(value.fg) then
-			---@diagnostic disable-next-line: cast-local-type
-			fg = vim.api.nvim_get_hl(0, { name = value.fg }).fg
+		if utils.is_hex_color(value.fg) then
+			hl_opts.fg = value.fg
+		else
+			local source = vim.api.nvim_get_hl(0, { name = value.fg })
+			hl_opts.fg = source.fg
+			hl_opts.ctermfg = source.ctermfg
 		end
 
 		-- Background
-		local bg = value.bg
-		if not utils.is_hex_color(value.bg) then
-			---@diagnostic disable-next-line: cast-local-type
-			bg = vim.api.nvim_get_hl(0, { name = value.bg }).bg
+		if utils.is_hex_color(value.bg) then
+			hl_opts.bg = value.bg
+		else
+			local source = vim.api.nvim_get_hl(0, { name = value.bg })
+			hl_opts.bg = source.bg
+			hl_opts.ctermbg = source.ctermbg
 		end
 
 		-- Set the highlight
-		vim.api.nvim_set_hl(0, name, { fg = fg, bg = bg, bold = value.bold, italic = value.italic })
+		vim.api.nvim_set_hl(0, name, hl_opts)
 	end
 end
 
@@ -183,9 +189,14 @@ local function visit_buffer(buffer)
 		local icon_name = devicons.get_icon_name_by_filetype(filetype) or ""
 		local icon_group = "DevIcon" .. icon_name:sub(1, 1):upper() .. icon_name:sub(2)
 
-		local fg = vim.api.nvim_get_hl(0, { name = icon_group }).fg
-		local bg = vim.api.nvim_get_hl(0, { name = "Normal" }).bg
-		vim.api.nvim_set_hl(0, "Tabs" .. icon_group, { fg = fg, bg = bg })
+		local source_fg = vim.api.nvim_get_hl(0, { name = icon_group })
+		local source_bg = vim.api.nvim_get_hl(0, { name = "Normal" })
+		vim.api.nvim_set_hl(0, "Tabs" .. icon_group, {
+			fg = source_fg.fg,
+			bg = source_bg.bg,
+			ctermfg = source_fg.ctermfg,
+			ctermbg = source_bg.ctermbg,
+		})
 
 		icon_color = "Tabs" .. icon_group
 	end
