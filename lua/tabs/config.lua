@@ -9,7 +9,6 @@ local config = {}
 ---@field offsets Offset[]
 ---@field ignored string[]
 ---@field highlights table<HighlightName, Highlight>
----@field tab_width integer
 ---@field autohide boolean
 ---@field max_tabs integer
 
@@ -20,14 +19,10 @@ local config = {}
 ---@field offsets? UserOffset[]
 ---@field ignored? string[]
 ---@field highlights? table<HighlightName, Highlight>
----@field tab_width? integer
 ---@field autohide? boolean
 
 ---@type TabConfig
 config.default = {
-
-	--- Width of all tabs
-	tab_width = 25,
 
 	max_tabs = 6,
 

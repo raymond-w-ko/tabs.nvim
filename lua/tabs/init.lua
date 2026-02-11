@@ -25,18 +25,38 @@ local function get_offset_width()
 	return total
 end
 
-local function get_visible_tab_count()
+local function get_tab_width(buffer_info)
+	local ok, name = pcall(vim.api.nvim_buf_get_name, buffer_info.buffer)
+	if not ok then return 0 end
+	local title = name:match("([^/]+)$") or ""
+	local width = #title + 2
+	if buffer_info.icon ~= nil then
+		width = width + 2
+	end
+	return width
+end
+
+local function get_view_end()
 	local available = vim.o.columns - get_offset_width()
-	local fit = math.max(math.floor(available / config.options.tab_width), 1)
-	return math.min(fit, config.options.max_tabs)
+	local total = 0
+	local last = math.min(view_start + config.options.max_tabs - 1, #visited_buffers)
+	for i = view_start, last do
+		local w = get_tab_width(visited_buffers[i])
+		if i > view_start then w = w + 1 end
+		if total + w > available and i > view_start then
+			return i - 1
+		end
+		total = total + w
+	end
+	return last
 end
 
 local function ensure_selected_visible()
-	local visible = get_visible_tab_count()
 	if selected_index < view_start then
 		view_start = selected_index
-	elseif selected_index > view_start + visible - 1 then
-		view_start = selected_index - visible + 1
+	end
+	while get_view_end() < selected_index and view_start < selected_index do
+		view_start = view_start + 1
 	end
 end
 
@@ -85,8 +105,7 @@ function tabs.tabline()
 	end
 
 	-- Buffers
-	local visible = get_visible_tab_count()
-	local view_end = math.min(view_start + visible - 1, #visited_buffers)
+	local view_end = get_view_end()
 	for index = view_start, view_end do
 		local buffer_info = visited_buffers[index]
 
@@ -105,20 +124,13 @@ function tabs.tabline()
 		if buffer_exists then
 			local tab_title = buffer_name:match("([^/]+)$") or ""
 
-			local extra_characters = 0
-			if buffer_info.icon ~= nil then
-				extra_characters = extra_characters + 2
-			end
-
-			local padding = math.max((config.options.tab_width - #tab_title - extra_characters) / 2, 0)
-
 			-- Separator (before tab, between non-first tabs)
 			if index ~= view_start then
 				result = result .. tabs.highlight("│", "TabsSeparator")
 			end
 
 			-- Left padding
-			result = result .. tabs.highlight((" "):rep(padding), highlight)
+			result = result .. tabs.highlight(" ", highlight)
 
 			-- Icon
 			if buffer_info.icon ~= nil then
@@ -129,7 +141,7 @@ function tabs.tabline()
 			result = result .. tabs.highlight(tab_title, highlight)
 
 			-- Right padding
-			result = result .. tabs.highlight((" "):rep(padding), highlight)
+			result = result .. tabs.highlight(" ", highlight)
 		end
 	end
 
