@@ -223,6 +223,20 @@ tabs.setup = function(opts)
 			visit_buffer(args.buf)
 		end,
 	})
+
+	-- Repopulate visited_buffers after session restore
+	vim.api.nvim_create_autocmd("SessionLoadPost", {
+		callback = function()
+			visited_buffers = {}
+			for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+				if vim.api.nvim_buf_is_valid(buf)
+					and vim.bo[buf].buflisted
+					and vim.bo[buf].buftype == "" then
+					visit_buffer(buf)
+				end
+			end
+		end,
+	})
 end
 
 return tabs
