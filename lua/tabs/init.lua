@@ -271,6 +271,15 @@ tabs.setup = function(opts)
 		end,
 	})
 
+	vim.api.nvim_create_autocmd("BufDelete", {
+		callback = function(args)
+			visited_buffers = vim.tbl_filter(function(buffer_info)
+				return buffer_info.buffer ~= args.buf
+			end, visited_buffers)
+			vim.cmd("redrawtabline")
+		end,
+	})
+
 	-- Repopulate visited_buffers after session restore
 	vim.api.nvim_create_autocmd("SessionLoadPost", {
 		callback = function()
