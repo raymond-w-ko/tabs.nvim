@@ -160,6 +160,9 @@ end
 ---
 ---@return nil
 function tabs.open()
+	if #visited_buffers == 0 then
+		return
+	end
 	vim.api.nvim_set_current_buf(visited_buffers[selected_index].buffer)
 	selected_index = 1
 	view_start = 1
