@@ -112,6 +112,11 @@ function tabs.tabline()
 
 			local padding = math.max((config.options.tab_width - #tab_title - extra_characters) / 2, 0)
 
+			-- Separator (before tab, between non-first tabs)
+			if index ~= view_start then
+				result = result .. tabs.highlight("│", "TabsSeparator")
+			end
+
 			-- Left padding
 			result = result .. tabs.highlight((" "):rep(padding), highlight)
 
@@ -125,11 +130,6 @@ function tabs.tabline()
 
 			-- Right padding
 			result = result .. tabs.highlight((" "):rep(padding), highlight)
-
-			-- Separator
-			if index ~= 1 then
-				result = result .. tabs.highlight("│", "TabsSeparator")
-			end
 		end
 	end
 
