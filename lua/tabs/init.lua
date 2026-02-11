@@ -113,7 +113,7 @@ end
 ---
 ---@return nil
 function tabs.next()
-	selected_index = math.min(selected_index + 1, #visited_buffers - 1)
+	selected_index = math.min(selected_index + 1, #visited_buffers)
 	vim.cmd("redrawtabline")
 end
 
