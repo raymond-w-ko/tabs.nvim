@@ -11,6 +11,7 @@ local visited_buffers = {}
 
 local selected_index = 1
 local view_start = 1
+local pending_restore_paths = nil
 
 local function get_offset_width()
 	local total = 0
@@ -200,13 +201,23 @@ end
 
 --- Reorders visited_buffers to match a previously saved path order.
 --- Buffers not in the saved order are appended at the end.
+--- If called before SessionLoadPost (e.g., from auto-session's
+--- restore_extra_data), the paths are stashed and applied after
+--- SessionLoadPost repopulates the buffer list.
 ---
 ---@param paths string[]
 function tabs.restore_visited_order(paths)
+	pending_restore_paths = paths
+end
+
+local function apply_restore_order()
+	if not pending_restore_paths then return end
+
 	local path_to_rank = {}
-	for i, path in ipairs(paths) do
+	for i, path in ipairs(pending_restore_paths) do
 		path_to_rank[path] = i
 	end
+	pending_restore_paths = nil
 
 	table.sort(visited_buffers, function(a, b)
 		local ok_a, name_a = pcall(vim.api.nvim_buf_get_name, a.buffer)
@@ -328,6 +339,7 @@ tabs.setup = function(opts)
 					visit_buffer(buf)
 				end
 			end
+			apply_restore_order()
 		end,
 	})
 end
