@@ -20,11 +20,8 @@ function utils.center(text, length)
 	end
 
 	-- Get padding
-	local left_padding = (length - width) / 2
-	local right_padding = left_padding
-	if width % 2 == 0 then
-		right_padding = right_padding + 1
-	end
+	local left_padding = math.floor((length - width) / 2)
+	local right_padding = length - width - left_padding
 
 	-- Return padded text
 	return (" "):rep(left_padding) .. text .. (" "):rep(right_padding)
