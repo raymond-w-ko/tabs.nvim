@@ -165,7 +165,7 @@ function tabs.open()
 	view_start = 1
 	vim.cmd("redrawtabline")
 	if config.options.autohide then
-		vim.opt.tabline = 0
+		vim.opt.showtabline = 0
 	end
 end
 
