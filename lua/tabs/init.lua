@@ -202,7 +202,7 @@ local function visit_buffer(buffer)
 	local has_devicons, devicons = pcall(function()
 		return require("nvim-web-devicons")
 	end)
-	local icon = ""
+	local icon = nil
 	local icon_color = nil
 	if has_devicons then
 		local filetype = vim.api.nvim_get_option_value("filetype", { buf = buffer })
