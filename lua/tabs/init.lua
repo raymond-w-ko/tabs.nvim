@@ -184,6 +184,43 @@ function tabs.open()
 	end
 end
 
+--- Returns the file paths of visited buffers in order, for session persistence.
+---
+---@return string[]
+function tabs.get_visited_paths()
+	local paths = {}
+	for _, buffer_info in ipairs(visited_buffers) do
+		local ok, name = pcall(vim.api.nvim_buf_get_name, buffer_info.buffer)
+		if ok and name ~= "" then
+			table.insert(paths, name)
+		end
+	end
+	return paths
+end
+
+--- Reorders visited_buffers to match a previously saved path order.
+--- Buffers not in the saved order are appended at the end.
+---
+---@param paths string[]
+function tabs.restore_visited_order(paths)
+	local path_to_rank = {}
+	for i, path in ipairs(paths) do
+		path_to_rank[path] = i
+	end
+
+	table.sort(visited_buffers, function(a, b)
+		local ok_a, name_a = pcall(vim.api.nvim_buf_get_name, a.buffer)
+		local ok_b, name_b = pcall(vim.api.nvim_buf_get_name, b.buffer)
+		local rank_a = (ok_a and path_to_rank[name_a]) or math.huge
+		local rank_b = (ok_b and path_to_rank[name_b]) or math.huge
+		return rank_a < rank_b
+	end)
+
+	selected_index = 1
+	view_start = 1
+	vim.cmd("redrawtabline")
+end
+
 --- Sets up the plugin's highlights based on the user's configuration.
 ---
 ---@param highlights table<HighlightName, Highlight> The highlights from the user's configuration
