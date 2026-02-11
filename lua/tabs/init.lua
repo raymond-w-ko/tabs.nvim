@@ -10,6 +10,35 @@ local tabs = {}
 local visited_buffers = {}
 
 local selected_index = 1
+local view_start = 1
+
+local function get_offset_width()
+	local total = 0
+	for _, offset in ipairs(config.options.offsets) do
+		for _, window in ipairs(vim.api.nvim_list_wins()) do
+			local buffer = vim.api.nvim_win_get_buf(window)
+			if vim.api.nvim_get_option_value("filetype", { buf = buffer }) == offset.filetype then
+				total = total + vim.api.nvim_win_get_width(window)
+			end
+		end
+	end
+	return total
+end
+
+local function get_visible_tab_count()
+	local available = vim.o.columns - get_offset_width()
+	local fit = math.max(math.floor(available / config.options.tab_width), 1)
+	return math.min(fit, config.options.max_tabs)
+end
+
+local function ensure_selected_visible()
+	local visible = get_visible_tab_count()
+	if selected_index < view_start then
+		view_start = selected_index
+	elseif selected_index > view_start + visible - 1 then
+		view_start = selected_index - visible + 1
+	end
+end
 
 --- Removes non-real buffers (e.g., telescope prompts, nofile scratch buffers)
 --- from the visited_buffers list.
@@ -56,10 +85,10 @@ function tabs.tabline()
 	end
 
 	-- Buffers
-	for index, buffer_info in ipairs(visited_buffers) do
-		if index == config.options.max_tabs + 1 then
-			break
-		end
+	local visible = get_visible_tab_count()
+	local view_end = math.min(view_start + visible - 1, #visited_buffers)
+	for index = view_start, view_end do
+		local buffer_info = visited_buffers[index]
 
 		local buffer_exists, buffer_name = pcall(function()
 			return vim.api.nvim_buf_get_name(buffer_info.buffer)
@@ -114,6 +143,7 @@ end
 ---@return nil
 function tabs.next()
 	selected_index = math.min(selected_index + 1, #visited_buffers)
+	ensure_selected_visible()
 	vim.cmd("redrawtabline")
 end
 
@@ -122,6 +152,7 @@ end
 ---@return nil
 function tabs.previous()
 	selected_index = math.max(selected_index - 1, 1)
+	ensure_selected_visible()
 	vim.cmd("redrawtabline")
 end
 
@@ -131,6 +162,7 @@ end
 function tabs.open()
 	vim.api.nvim_set_current_buf(visited_buffers[selected_index].buffer)
 	selected_index = 1
+	view_start = 1
 	vim.cmd("redrawtabline")
 	if config.options.autohide then
 		vim.opt.tabline = 0
