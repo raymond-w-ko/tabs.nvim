@@ -11,6 +11,17 @@ local visited_buffers = {}
 
 local selected_index = 1
 
+--- Removes non-real buffers (e.g., telescope prompts, nofile scratch buffers)
+--- from the visited_buffers list.
+local function prune_buffers()
+	visited_buffers = vim.tbl_filter(function(buffer_info)
+		local buf = buffer_info.buffer
+		return vim.api.nvim_buf_is_valid(buf)
+			and vim.bo[buf].buflisted
+			and vim.bo[buf].buftype == ""
+	end, visited_buffers)
+end
+
 --- Formats the given text to be highlighted with the given highlight group,
 --- as Vim expects it to be when rendering the tabline.
 ---
@@ -179,6 +190,9 @@ local function visit_buffer(buffer)
 
 	-- Add it
 	table.insert(visited_buffers, 1, { buffer = buffer, icon = icon, icon_color = icon_color })
+
+	-- Prune fake buffers from telescope, etc.
+	prune_buffers()
 
 	-- Reload
 	vim.cmd("redrawtabline")
