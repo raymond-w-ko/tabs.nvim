@@ -71,9 +71,9 @@ config.default = {
 
 	--- Highlight groups used by the plugin. Values are passed directly to `nvim_set_hl`.
 	highlights = {
-		["TabsFocused"] = { ctermfg = 0, ctermbg = 2 },
+		["TabsFocused"] = { ctermfg = 10 },
 		["TabsUnfocused"] = { ctermfg = 8 },
-		["TabsSelected"] = { bold = true, italic = true, ctermfg = 7, ctermbg = 8 },
+		["TabsSelected"] = { bold = true, ctermfg = 7, ctermbg = 8 },
 		["TabsSeparator"] = { ctermfg = 8 },
 	},
 }
